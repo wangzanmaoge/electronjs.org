@@ -14,7 +14,7 @@ module.exports = (req, res) => {
   const context = Object.assign(req.context, {
     companies: featuredCompanies,
     showAnnouncementBanner: false,
-    apps
+    apps,
   })
 
   res.render('home', context)

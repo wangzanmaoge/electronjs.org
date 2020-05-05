@@ -1,13 +1,13 @@
 const yubikiri = require('yubikiri')
 const BlogPost = require('../../lib/blog')
 
-function hydrateViewModel (blogPost) {
+function hydrateViewModel(blogPost) {
   return yubikiri({
     title: blogPost.title(),
     href: blogPost.href(),
     date: blogPost.date(),
     authors: blogPost.authors(),
-    excerpt: blogPost.excerpt()
+    excerpt: blogPost.excerpt(),
   })
 }
 

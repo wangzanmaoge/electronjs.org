@@ -5,23 +5,30 @@ const setQueryString = require('set-query-string')
 const lazyLoadImages = require('./lazy-load-images')
 
 class FilterList {
-  static create (list, input) {
+  static create(list, input) {
     return new FilterList(list, input)
   }
 
-  constructor (list, input) {
+  constructor(list, input) {
     this.input = input
     this.index = this.buildIndex(list)
     this.referenceList = list.cloneNode(true)
-    this.referenceList.querySelectorAll('img[data-src]').forEach(lazyLoadImages.addImage)
-    this.totalAppCount = this.referenceList.querySelectorAll('.listed-app').length
+    this.referenceList
+      .querySelectorAll('img[data-src]')
+      .forEach(lazyLoadImages.addImage)
+    this.totalAppCount = this.referenceList.querySelectorAll(
+      '.listed-app'
+    ).length
 
-    this.input.addEventListener('input', debounce((evt) => this.search(evt.target.value), 250))
+    this.input.addEventListener(
+      'input',
+      debounce((evt) => this.search(evt.target.value), 250)
+    )
     // trigger a search, in case there is an existing value in the text input
     this.search(this.input.value)
   }
 
-  search (text) {
+  search(text) {
     try {
       const results = this.index.search(text)
       this.updateList(results)
@@ -34,7 +41,7 @@ class FilterList {
     }
   }
 
-  updateList (results) {
+  updateList(results) {
     const existingList = document.querySelector('.filterable-list')
     const parent = existingList.parentElement
     let newList
@@ -46,9 +53,13 @@ class FilterList {
       newList = this.referenceList.cloneNode(false)
       results.forEach((result) => {
         // Clone from existing list if it exists
-        let node = existingList.querySelector(`[data-search-id="${result.ref}"]`)
+        let node = existingList.querySelector(
+          `[data-search-id="${result.ref}"]`
+        )
         if (!node) {
-          node = this.referenceList.querySelector(`[data-search-id="${result.ref}"]`)
+          node = this.referenceList.querySelector(
+            `[data-search-id="${result.ref}"]`
+          )
         }
         const clone = node.cloneNode(true)
         newList.appendChild(clone)
@@ -60,7 +71,7 @@ class FilterList {
     newList.querySelectorAll('img[data-src]').forEach(lazyLoadImages.addImage)
   }
 
-  buildIndex (list) {
+  buildIndex(list) {
     const builder = new lunr.Builder()
     // Not including `lunr.stemmer` which is normally included by default
     builder.pipeline.add(lunr.trimmer, lunr.stopWordFilter)
@@ -91,17 +102,22 @@ class FilterList {
     return builder.build()
   }
 
-  docForEntry (id, entry) {
+  docForEntry(id, entry) {
     const name = entry.querySelector('.listed-app-name').textContent
-    const description = entry.querySelector('.listed-app-description').textContent
-    const date = entry.querySelector('.listed-app-date [data-date]').getAttribute('data-date')
-    const keywords = entry.querySelector('.listed-app-keywords').textContent.split(',')
+    const description = entry.querySelector('.listed-app-description')
+      .textContent
+    const date = entry
+      .querySelector('.listed-app-date [data-date]')
+      .getAttribute('data-date')
+    const keywords = entry
+      .querySelector('.listed-app-keywords')
+      .textContent.split(',')
 
     return { id, name, description, date, keywords }
   }
 }
 
-module.exports = function createFilterList () {
+module.exports = function createFilterList() {
   // look for a filterable list on this page
   const list = document.querySelector('.filterable-list')
   if (!list || !list.parentElement) return
